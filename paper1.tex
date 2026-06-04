@@ -1,0 +1,629 @@
+\documentclass[11pt,a4paper]{article}
+
+% ── packages ──────────────────────────────────────────────────────────────────
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{multirow}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue
+}
+
+\captionsetup{font=small, labelfont=bf, width=0.95\textwidth}
+
+% ── title ─────────────────────────────────────────────────────────────────────
+\title{\textbf{Bilateral Symmetry as a Filter-Robust Discriminator\\
+Between Real and GAN-Generated Face Images}}
+
+\author{Scott Cundill\\
+\small Independent Researcher, Okinawa, Japan\\
+\small \href{mailto:scott.cam@gmail.com}{scott.cam@gmail.com}}
+
+\date{}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+\maketitle
+
+% ── abstract ──────────────────────────────────────────────────────────────────
+\begin{abstract}
+Generative adversarial networks now produce synthetic face images that are,
+in many cases, indistinguishable from real photographs by human observers.
+Detection methods fall into two broad camps: deep-learning classifiers, and
+handcrafted-feature approaches that target specific, interpretable geometric
+artifacts. We report a measurement of global bilateral symmetry on 1,000 real
+face images from the Flickr-Faces-HQ dataset and 1,000 GAN-generated images
+from a StyleGAN release, under three independent image-preprocessing filters:
+raw greyscale, topographic isoline, and edge.
+GAN-generated faces show significantly higher bilateral symmetry than real
+faces under all three filters, with effect sizes of $d = 0.20$--$0.28$ and
+$p < 10^{-4}$ throughout. The result is independently confirmed on a held-out
+validation sample of 1,000 images drawn from a separate partition of the same
+dataset ($d = 0.14$--$0.40$, $p < 0.002$ across all three filters). A parallel
+analysis on 1,000 diffusion-generated faces (DALL-E~3, FLUX1, SDXL) reveals a
+qualitatively different pattern: diffusion faces show no global luminance
+symmetry bias but are dramatically more symmetric in their edge structure
+($d = 1.06$, $p = 2.5 \times 10^{-108}$). The result persists under an edge
+filter that suppresses global lighting and pose information, substantially
+weakening the principal confounds for whole-image symmetry measurement. Real
+faces additionally show greater multifractal width, Shannon entropy, and
+junction complexity. Global bilateral symmetry is a simple, parameter-free,
+interpretable feature whose filter-resolved behaviour reveals architecturally
+distinct geometric signatures in GAN and diffusion generators, suggesting
+utility as a component in ensemble detectors for synthetic face images.
+\end{abstract}
+
+% ── 1. Introduction ───────────────────────────────────────────────────────────
+\section{Introduction}
+
+Generative adversarial networks now produce synthetic face images that are, in
+many cases, indistinguishable from photographs by human observers
+\citep{goodfellow2014generative, karras2019style}. Detection methods fall into
+two broad camps: deep-learning classifiers trained end-to-end on real and
+synthetic pairs \citep{tolosana2022survey}, and handcrafted-feature approaches
+that target specific, interpretable geometric artifacts. The latter are of
+particular interest because, when a feature discriminates, the reason is
+legible.
+
+Recent handcrafted work has focused on local facial asymmetries, specifically
+differences between the two eyes in colour \citep{matern2019exploiting},
+corneal highlight patterns \citep{hu2021exposing}, and iris structure. The
+underlying observation is sound: GANs impose no explicit symmetry constraint
+during generation, so bilateral consistency emerges only as a statistical
+property of the training data, not as an architectural guarantee
+\citep{gragnaniello2022detection}.
+
+Whether this extends to the \emph{global} bilateral symmetry of the whole face
+has not, to our knowledge, been reported. This is the question we address.
+Global bilateral symmetry---the correspondence between the left and right halves
+of the full image---is a single scalar measurement requiring no landmark
+detection or segmentation. It is computationally trivial, and its behaviour
+under different image representations has not been tested in this context.
+
+We measured global bilateral symmetry on 1,000 real faces from FFHQ
+\citep{karras2019style} and 1,000 GAN-generated faces from the 140k Real and
+Fake Faces dataset \citep{tunguz2020, xhlulu2020}, under three independent
+preprocessing filters: raw greyscale, topographic isoline, and edge.
+GAN-generated faces are measurably more bilaterally symmetric than real faces
+under all three, including the edge filter, which suppresses global pose and
+lighting---the principal confounds for any whole-image symmetry measurement.
+Three secondary metrics (multifractal width, Shannon entropy, skeleton junction
+count) show consistent separation under the raw filter.
+
+We make no claim of universal separability between real and synthetic faces.
+The result is specific to these datasets and this metric. Its value is that it
+is simple, interpretable, and stable across basic changes in image
+representation. This work arose from the development of SCOTT (Structural and
+Coherent Order in Topological Transforms), an open-source framework for
+measuring geometric and topological order in 2D images, in the course of which
+a battery of symmetry and topology metrics was applied to publicly available
+face image datasets. The bilateral symmetry finding reported here emerged from
+that broader measurement programme.
+
+% ── 2. Datasets ───────────────────────────────────────────────────────────────
+\section{Datasets}
+
+Real face images were drawn from the Flickr-Faces-HQ dataset (FFHQ), collected
+by NVIDIA \citep{karras2019style}. GAN-generated images were drawn from the ``1
+Million Fake Faces'' dataset \citep{tunguz2020}, a StyleGAN release compiled
+alongside FFHQ into the ``140k Real and Fake Faces'' package on Kaggle
+\citep{xhlulu2020}. From each source, 1,000 images were selected, giving a
+balanced sample of $n = 2{,}000$. Both subsets were drawn from the test
+partition of the Kaggle dataset, held separate from any training split by the
+dataset's compiler. FFHQ images are independent photographs of distinct
+individuals; StyleGAN images are independently sampled from the generator's
+latent space and share no identity information. All images were converted to
+greyscale prior to analysis.
+
+The Kaggle dataset stores images at $256 \times 256$ pixel resolution. The SCOTT
+pipeline normalises all inputs to $512 \times 512$ before analysis using cubic
+spline interpolation (\texttt{cv2.INTER\_CUBIC}), to ensure uniform filter radii
+and consistent spatial frequency response across all datasets regardless of
+original resolution. This represents a $2\times$ upscaling of the original data.
+Because the bilateral symmetry metric and the secondary metrics operate on
+pixel-value relationships, upscaling affects both populations equally,
+preserving the relative discrimination between them. The SFHQ-T2I diffusion
+images are natively $1024 \times 1024$ and are downscaled to $512 \times 512$
+by the same normalisation step. All datasets were processed consistently under
+pipeline version v16.2.
+
+% ── 3. Methods ────────────────────────────────────────────────────────────────
+\section{Methods}
+
+\subsection{Bilateral symmetry metric}
+
+Global bilateral symmetry was computed as follows. Each greyscale image was
+normalised to the range $[0, 1]$ as a floating-point array, then flipped
+horizontally to produce its mirror image. Bilateral symmetry is defined as:
+
+\begin{equation}
+  \mathrm{BS} = 1 - \mathrm{MAD}(I, F)
+\end{equation}
+
+where $I$ is the normalised image ($512 \times 512$, float $[0,1]$), $F$ is its
+horizontal flip, and $\mathrm{MAD}$ is the mean absolute difference:
+
+\begin{equation}
+  \mathrm{MAD}(I, F) = \frac{1}{HW} \sum_{h=1}^{H} \sum_{w=1}^{W}
+  \bigl| I(h,w) - F(h,w) \bigr|
+\end{equation}
+
+The result ranges from 0 (no mirror correspondence) to 1.0 (perfect bilateral
+symmetry). This is a direct pixel-wise deviation from mirror symmetry, not a
+normalised cross-correlation. The MAD formulation penalises absolute pixel
+differences uniformly across the image, making it a stringent and interpretable
+measure of global mirror correspondence. A secondary measure, left-right
+brightness imbalance, was computed as the absolute difference in mean pixel
+intensity between the left and right halves of the image.
+
+\subsection{Image preprocessing filters}
+
+Three independent preprocessing filters were applied to each image before metric
+computation. Each suppresses a different class of image information, providing
+three partially independent tests of the same hypothesis. A metric that responds
+consistently across all three representations is unlikely to reflect a single
+artefact type.
+
+\textit{Raw.} The greyscale image at $512 \times 512$ with no further
+processing. This is the control representation, retaining all spatial
+information including lighting gradients, texture, and fine detail.
+
+\textit{Topographic isoline.} Contrast-Limited Adaptive Histogram Equalisation
+(CLAHE, clip limit 4, tile grid $8 \times 8$) was first applied to normalise
+local contrast. The image was then smoothed with a bilateral filter (diameter 9,
+$\sigma = 75$ in both colour and coordinate space). Intensity isolines were
+extracted at uniform intervals of 15 grey levels across the full 0--255 range,
+producing 16 contour levels drawn as 1-pixel lines on a black canvas. The result
+suppresses texture and retains only the large-scale geometric structure of the
+brightness landscape. All topographic-filtered data were processed under
+pipeline version v16.2 (ingestion timestamps: 2026-06-01 to 2026-06-03),
+ensuring consistent CLAHE parameters across all datasets.
+
+\textit{Edge.} The greyscale image was smoothed with a $5 \times 5$ Gaussian
+kernel, then passed through a Canny edge detector with thresholds of 30 (low)
+and 120 (high), chosen to retain fine facial detail including shallow surface
+gradients. A $3 \times 3$ rectangular closing operation was applied to bridge
+small gaps in detected edges. This representation responds to local gradient
+magnitude and is largely insensitive to global brightness gradients and
+low-frequency composition.
+
+\subsection{Secondary metrics}
+
+Three secondary metrics were computed on the raw filter only, as supporting
+observations rather than primary claims.
+
+\textit{Multifractal width} measures the spread of the multifractal spectrum of
+the greyscale image, capturing the richness of intensity variation across spatial
+scales \citep{chhabra1989}.
+
+\textit{Shannon entropy} of the greyscale histogram measures the distribution of
+pixel intensities; higher entropy indicates a more uniform spread and, in natural
+images, greater tonal complexity \citep{shannon1948}.
+
+\textit{Junction count} is the number of branch-point junctions in the binary
+skeleton of the image, extracted after thresholding. It reflects the topological
+complexity of the intensity surface.
+
+\subsection{Statistical procedure}
+
+Group means were compared using Welch's two-sample $t$-test, which does not
+assume equal variances. Tests were two-sided. Exact $p$-values are reported
+throughout. Effect size is reported as Cohen's $d$, computed as the mean
+difference divided by the pooled standard deviation. Each filter condition was
+treated as a separate planned comparison. No correction for multiple comparisons
+was applied across the three filter tests, as they address the same hypothesis
+under different image representations rather than testing independent hypotheses.
+A Bonferroni-corrected threshold of $p < 0.017$ would nonetheless be met by all
+three results.
+
+For the three secondary metrics, a Benjamini--Hochberg correction at FDR $= 0.05$
+was applied; all three remain significant after correction (adjusted $p$-values:
+multifractal width $1.2 \times 10^{-6}$, Shannon entropy $2.2 \times 10^{-3}$,
+junction count $1.5 \times 10^{-2}$).
+
+% ── 4. Results ────────────────────────────────────────────────────────────────
+\section{Results}
+
+\subsection{Bilateral symmetry results}
+
+GAN-generated face images showed consistently higher bilateral symmetry than
+real face images across all three filter representations. Table~\ref{tab:main}
+reports means, standard deviations, test statistics, effect sizes, and
+independent validation results.
+
+\begin{table}[H]
+\centering
+\caption{Bilateral symmetry (BS) in real versus GAN-generated face images under
+three filter representations. $n = 1{,}000$ per group. Val.\ $d$ and Val.\ $p$
+report results from an independent validation sample of 1,000 images drawn from
+the Kaggle train partition (random seed 42), never used in the main analysis.
+Cohen's $d$ is reported as AI minus real throughout.}
+\label{tab:main}
+\small
+\begin{tabular}{lcccccccccc}
+\toprule
+Filter & $\bar{x}_\text{real}$ & $s_\text{real}$ & $\bar{x}_\text{AI}$ &
+$s_\text{AI}$ & $t$ & $p$ & $d$ & Val.\ $d$ & Val.\ $p$ \\
+\midrule
+Raw         & 0.8008 & 0.0673 & 0.8198 & 0.0700 & $-6.19$ &
+  $7.5\times10^{-10}$ & $0.28$ & $0.40$ & $7.9\times10^{-19}$ \\
+Topographic & 0.5887 & 0.0289 & 0.5948 & 0.0288 & $-4.79$ &
+  $1.8\times10^{-6}$  & $0.21$ & $0.14$ & $1.4\times10^{-3}$  \\
+Edge        & 0.8105 & 0.0616 & 0.8225 & 0.0616 & $-4.37$ &
+  $1.3\times10^{-5}$  & $0.20$ & $0.29$ & $1.4\times10^{-10}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All three comparisons are significant at $p < 10^{-4}$. Effect sizes are small
+to modest ($d = 0.20$--$0.28$), indicating that the distributions overlap
+substantially and the metric alone would not constitute a reliable classifier.
+The direction is consistent: GAN-generated faces are more bilaterally symmetric
+than real faces under every representation tested. The raw filter produces the
+largest effect ($d = 0.28$), as expected, since it retains all image information
+including lighting and composition. The topographic and edge filters reduce the
+effect size modestly but do not eliminate it.
+
+\subsection{Independent validation}
+
+To confirm the result on unseen data, we drew an independent sample of 1,000
+real and 1,000 AI images from the train partition of the Kaggle dataset, which
+was not used in the main analysis. Images were selected by random sampling with
+seed 42. The bilateral symmetry effect replicates under all three filters, with
+$d = 0.40$ ($p = 7.9 \times 10^{-19}$) on the raw filter, $d = 0.29$
+($p = 1.4 \times 10^{-10}$) on the edge filter, and $d = 0.14$
+($p = 1.4 \times 10^{-3}$) on the topographic filter. Effect sizes are
+comparable or larger than in the main analysis, providing no evidence that the
+original result was driven by characteristics specific to the valid partition.
+
+\subsection{Edge filter}
+
+The edge filter result warrants specific attention. The Canny edge representation
+responds to local gradient magnitude and is largely insensitive to global image
+composition, low-frequency lighting gradients, and framing. Pose-related
+asymmetry, which affects the low-frequency brightness distribution of the image,
+contributes minimally to an edge map dominated by local boundary structure. The
+persistence of the bilateral symmetry difference under this representation
+($d = 0.20$, $p = 1.3 \times 10^{-5}$) is therefore the central robustness
+result of this paper. It does not eliminate the confound entirely, but it
+substantially weakens it as an explanation.
+
+\subsection{Secondary metrics}
+
+Table~\ref{tab:secondary} reports three secondary metrics on the raw filter. All
+three show consistent separation, with real faces scoring higher than
+GAN-generated faces on every measure.
+
+\begin{table}[H]
+\centering
+\caption{Secondary metrics (raw filter only), real versus GAN-generated faces.
+$n = 1{,}000$ per group. Cohen's $d$ is negative throughout, indicating
+real $>$ AI. Adjusted $p$-values shown (Benjamini--Hochberg FDR $= 0.05$).}
+\label{tab:secondary}
+\small
+\begin{tabular}{lcccccccc}
+\toprule
+Metric & $\bar{x}_\text{real}$ & $s_\text{real}$ & $\bar{x}_\text{AI}$ &
+$s_\text{AI}$ & $t$ & $p_\text{adj}$ & $d$ & Direction \\
+\midrule
+Multifractal width & 0.6027 & 0.5103 & 0.4968 & 0.4142 &
+  $5.09$ & $1.2\times10^{-6}$ & $-0.23$ & real $>$ AI \\
+Shannon entropy    & 7.4206 & 0.3121 & 7.3735 & 0.3473 &
+  $3.19$ & $2.2\times10^{-3}$ & $-0.14$ & real $>$ AI \\
+Junction count     & 1445.4 & 612.9  & 1377.5 & 637.3  &
+  $2.43$ & $1.5\times10^{-2}$ & $-0.11$ & real $>$ AI \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Real faces show greater multifractal width, higher Shannon entropy, and higher
+junction counts than GAN-generated faces, consistent with real photographic
+images carrying richer multi-scale complexity than StyleGAN outputs, a pattern
+previously observed in frequency-domain analyses \citep{shannon1948,
+chhabra1989}. These are reported as supporting observations; the primary claim
+of this paper concerns bilateral symmetry. The junction count result in
+particular ($d = -0.11$, $p_\text{adj} = 0.015$) is the weakest signal and
+should be interpreted cautiously.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figure1_threeway_violin.png}
+\caption{Bilateral symmetry distributions for real (FFHQ), StyleGAN, and
+diffusion (SFHQ-T2I: DALL-E~3, FLUX1, SDXL mixed) face images under three
+filter representations. Horizontal bars indicate group means.}
+\label{fig:violin}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{figure2_secondary_metrics_bar.png}
+\caption{Secondary metrics (raw filter only) for real versus StyleGAN-generated
+faces. Error bars show standard error of the mean.}
+\label{fig:secondary}
+\end{figure}
+
+\subsection{Diffusion-generated faces}
+
+A separate analysis was conducted on 1,000 images drawn at random (seed 42) from
+the SFHQ-T2I dataset \citep{beniaguev2024}, a publicly available collection of
+diffusion-generated face images spanning three architecturally distinct models:
+DALL-E~3, FLUX1, and SDXL. Images are natively $1024 \times 1024$ and were
+downscaled to $512 \times 512$ by the standard SCOTT normalisation step. The
+dataset is curated and generated from text prompts designed to produce frontal,
+well-lit faces; selection biases inherent in the prompting process may affect the
+results, and this is acknowledged as a limitation.
+
+\begin{table}[H]
+\centering
+\caption{Bilateral symmetry: real faces versus diffusion-generated faces
+(SFHQ-T2I, $n = 1{,}000$ per group). The edge filter result is the primary
+finding. ns = not significant ($p > 0.05$).}
+\label{tab:diffusion}
+\small
+\begin{tabular}{lcccccccc}
+\toprule
+Filter & $\bar{x}_\text{real}$ & $\bar{x}_\text{diff}$ & $s_\text{real}$ &
+$s_\text{diff}$ & $t$ & $p$ & $d$ & Direction \\
+\midrule
+Raw         & 0.8008 & 0.7962 & 0.0673 & 0.0555 & $1.68$ &
+  $0.093$ & $-0.08$ & real $>$ diff (ns) \\
+Topographic & 0.5887 & 0.5827 & 0.0289 & 0.0472 & $3.42$ &
+  $6.5\times10^{-4}$ & $-0.15$ & real $>$ diff \\
+\rowcolor{yellow!20}
+Edge        & 0.8105 & 0.8682 & 0.0616 & 0.0465 & $-23.65$ &
+  $2.5\times10^{-108}$ & $+1.06$ & diff $>$ real \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The results reveal a striking dissociation across filter representations. Under
+the raw filter, diffusion faces show no significant difference from real faces
+($d = -0.08$, $p = 0.093$). Under the topographic filter, they are marginally
+less symmetric ($d = -0.15$, $p = 6.5 \times 10^{-4}$). Under the edge filter,
+however, diffusion faces are dramatically more symmetric than real faces, with an
+effect size of $d = 1.06$, $p = 2.5 \times 10^{-108}$---an effect approximately
+five times larger than the StyleGAN result under the same filter.
+
+This dissociation suggests that diffusion models produce a qualitatively
+different kind of regularity from StyleGAN. StyleGAN symmetry is primarily a
+global, luminance-level phenomenon, visible under raw and topographic
+representations. Diffusion symmetry is predominantly local and edge-based: the
+boundary geometry of diffusion-generated faces is almost perfectly mirrored in a
+way that neither real faces nor StyleGAN faces are. The two generator classes
+leave distinct geometric signatures, and the bilateral symmetry metric under
+different filter representations separates them.
+
+% ── 5. Discussion ─────────────────────────────────────────────────────────────
+\section{Discussion}
+
+\subsection{The symmetry difference}
+
+GAN-generated face images are measurably more bilaterally symmetric than real
+photographs, across all three filter representations tested. The effect is small
+to modest in magnitude ($d = 0.20$--$0.28$), meaning the distributions overlap
+substantially, and the metric alone would not constitute a reliable classifier.
+That is not a weakness of the finding---it is an accurate characterisation of it.
+
+The most plausible mechanism is straightforward. StyleGAN was trained on FFHQ, a
+dataset of aesthetically curated, roughly frontal, well-lit face photographs.
+Curation of this kind selects implicitly for compositional regularity, and the
+generator, optimising to reproduce the statistical properties of its training
+data, inherits and amplifies that regularity. Real photography, by contrast,
+includes asymmetric expression, uneven lighting, slight head rotation, and the
+natural bilateral asymmetry of human faces themselves. This explanation is
+consistent with the data, but cannot be confirmed by it; the present study does
+not manipulate training data composition or image curation.
+
+\subsection{The edge filter as a confound test}
+
+The standard objection to any whole-image symmetry measurement is that the
+effect reflects pose or lighting rather than anything intrinsic to the image
+source. A face photographed slightly off-centre, or lit from one side, will
+score lower on bilateral symmetry regardless of whether it is real or synthetic.
+This objection applies most directly to the raw filter result.
+
+The edge filter addresses this directly. The Canny edge representation responds
+to local gradient magnitude at pixel boundaries and is largely insensitive to
+global brightness gradients and low-frequency composition. Pose-related
+asymmetry contributes minimally to an edge map dominated by local boundary
+structure. The persistence of the bilateral symmetry difference under the edge
+filter ($d = 0.20$, $p = 1.3 \times 10^{-5}$) is therefore the central
+robustness result of this paper. It does not eliminate the confound entirely---
+strongly off-axis poses would still produce asymmetric edge maps---but it
+substantially weakens it as an explanation.
+
+\subsection{Two kinds of regularity}
+
+The diffusion results introduce a distinction the StyleGAN analysis alone could
+not reveal. StyleGAN faces are more symmetric than real faces at the global
+luminance level. Diffusion faces show no such global regularity, but their edge
+structure is dramatically more symmetric, with an effect size five times larger
+than the StyleGAN edge result. These are architecturally distinct failure modes.
+StyleGAN inherits the compositional regularity of its curated training data.
+Diffusion models, generating images through iterative denoising, apparently
+impose a strong bilateral constraint on local boundary geometry that does not
+manifest at the global luminance level. Whether this reflects a symmetry prior
+in the diffusion process, a property of the SFHQ-T2I prompts, or a more general
+characteristic of text-to-image face generation is an open question the present
+data cannot resolve.
+
+\subsection{Secondary metrics}
+
+Multifractal width, Shannon entropy, and junction count all show real faces
+scoring higher than GAN-generated faces under the raw filter. This is consistent
+with a broader pattern: real photographic images carry richer multi-scale
+complexity than GAN outputs, a difference previously observed in frequency-domain
+analyses \citep{shannon1948, chhabra1989}. These are reported as supporting
+observations, not independent claims. The junction count result ($d = -0.11$,
+$p_\text{adj} = 0.015$) is the weakest signal in the paper and should be
+interpreted cautiously.
+
+\subsection{Comparison with existing methods}
+
+Diffusion models have substantially reduced many classic GAN artefacts---spectral
+fingerprints, texture inconsistencies, local facial asymmetries---making
+traditional handcrafted detectors less reliable on newer generators. The
+filter-resolved bilateral symmetry approach described here responds to this
+shift: rather than targeting a specific artefact type, it measures a geometric
+property whose expression changes across generator classes in a diagnostically
+useful way.
+
+Existing handcrafted-feature detection methods focus predominantly on local
+asymmetries: per-eye colour differences \citep{matern2019exploiting}, corneal
+highlight inconsistencies \citep{hu2021exposing}, and iris structure. These
+methods identify specific anatomical locations where GANs fail to impose
+consistency. The present metric is complementary rather than competing---it
+captures whether the face as a whole is more symmetric than expected, without
+localising the source. The two approaches could reasonably be combined in a
+multi-feature ensemble, where global bilateral symmetry serves as a fast,
+parameter-free first-pass filter. CNN-based classifiers applied to the same 140k
+dataset routinely achieve $>95\%$ accuracy \citep{tolosana2022survey}; the
+present metric's value is not in outperforming deep classifiers but in being
+interpretable, lightweight, and training-free.
+
+\subsection{Limitations}
+
+Several limitations should be noted. First, this study uses specific dataset
+pairs: FFHQ for real faces, one StyleGAN release for GAN-generated faces, and
+SFHQ-T2I for diffusion-generated faces. Results may not generalise to all
+datasets or generator versions within each class---including StyleGAN3/3+ or
+other diffusion families (Stable Diffusion, Midjourney). Second, both FFHQ and
+the Kaggle sets are heavily curated and predominantly frontal; the effect sizes
+reported here may not replicate on datasets with greater pose variation or
+in-the-wild conditions. Third, the bilateral symmetry metric is a single scalar
+computed over the whole image, is sensitive to strongly off-axis poses, and does
+not localise the source of asymmetry. Fourth, the mechanism underlying the
+diffusion edge-symmetry result is not established by the present data and
+warrants dedicated investigation. Future work should test on more varied pose
+distributions, adversarially augmented images, and video-frame inputs.
+
+% ── 6. Conclusion ─────────────────────────────────────────────────────────────
+\section{Conclusion}
+
+Global bilateral symmetry, measured as a simple pixel-wise deviation from mirror
+correspondence, discriminates GAN-generated face images from real photographs
+with small but consistent effect sizes across three independent image
+representations, confirmed on a held-out validation sample. The result is robust
+under an edge filter that suppresses global lighting and composition
+($d = 0.20$, $p = 1.3 \times 10^{-5}$). A parallel analysis on 1,000
+diffusion-generated faces (DALL-E~3, FLUX1, SDXL) reveals a qualitatively
+different pattern: diffusion faces show no global luminance symmetry bias but
+are dramatically more symmetric in their edge structure
+($d = 1.06$, $p = 2.5 \times 10^{-108}$). StyleGAN and diffusion models leave
+distinct geometric signatures that the bilateral symmetry metric, applied across
+filter representations, can separate. These findings suggest that filter-resolved
+bilateral symmetry may be a useful component in ensemble detectors for synthetic
+face images, with the appropriate filter representation depending on the target
+generator class.
+
+% ── 7. Data and code ──────────────────────────────────────────────────────────
+\section{Data and code}
+
+Code, measurement data, and analysis scripts are available at:
+\url{https://github.com/scottcundill/scott-framework}
+
+The repository contains the SCOTT framework source code, all measurement CSVs
+used to produce the tables and figures in this paper, and the reproduction
+script. Real face images are available from FFHQ \citep{karras2019style};
+GAN-generated images from the 140k Real and Fake Faces dataset
+\citep{xhlulu2020}; diffusion images from SFHQ-T2I \citep{beniaguev2024}.
+
+% ── 8. Acknowledgements ───────────────────────────────────────────────────────
+\section*{Acknowledgements}
+
+This work arose from the development of SCOTT (Structural and Coherent Order in
+Topological Transforms), an open-source geometric image analysis framework, in
+the course of which the author applied a battery of topographic and symmetry
+metrics to publicly available face image datasets. The bilateral symmetry finding
+reported here emerged from that broader measurement programme rather than from a
+study designed specifically to test it. The author made extensive use of large
+language models---including Claude (Anthropic), GPT-4 (OpenAI), and Gemini
+(Google)---for code development, statistical guidance, and manuscript editing.
+Interpretation and conclusions are the author's.
+
+% ── References ────────────────────────────────────────────────────────────────
+\bibliographystyle{plainnat}
+
+\begin{thebibliography}{99}
+
+\bibitem[Beniaguev(2024)]{beniaguev2024}
+Beniaguev, D. (2024).
+\newblock Synthetic Faces High Quality -- Text 2 Image (SFHQ-T2I) Dataset.
+\newblock Kaggle. \url{https://www.kaggle.com/datasets/selfishgene/sfhq-t2i-synthetic-faces-from-text-2-image-models}
+\newblock DOI: 10.34740/kaggle/dsv/9548853
+
+\bibitem[Chhabra \& Jensen(1989)]{chhabra1989}
+Chhabra, A., \& Jensen, R.~V. (1989).
+\newblock Direct determination of the $f(\alpha)$ singularity spectrum.
+\newblock \textit{Physical Review Letters}, 62(12), 1327--1330.
+
+\bibitem[Goodfellow et~al.(2014)]{goodfellow2014generative}
+Goodfellow, I., Pouget-Abadie, J., Mirza, M., Xu, B., Warde-Farley, D.,
+  Ozair, S., Courville, A., \& Bengio, Y. (2014).
+\newblock Generative adversarial nets.
+\newblock \textit{Advances in Neural Information Processing Systems}, 27,
+  2672--2680.
+
+\bibitem[Gragnaniello et~al.(2022)]{gragnaniello2022detection}
+Gragnaniello, D., Marra, F., \& Verdoliva, L. (2022).
+\newblock Detection of AI-generated synthetic faces.
+\newblock In \textit{Handbook of Digital Face Manipulation and Detection}.
+  Springer International Publishing, pp.\ 191--212.
+
+\bibitem[Hu et~al.(2021)]{hu2021exposing}
+Hu, S., Li, Y., \& Lyu, S. (2021).
+\newblock Exposing GAN-generated faces using inconsistent corneal specular
+  highlights.
+\newblock \textit{ICASSP 2021}, pp.\ 2500--2504.
+\newblock DOI: 10.1109/ICASSP39728.2021.9414582
+
+\bibitem[Karras et~al.(2019)]{karras2019style}
+Karras, T., Laine, S., \& Aila, T. (2019).
+\newblock A style-based generator architecture for generative adversarial
+  networks.
+\newblock \textit{Proceedings of the IEEE/CVF CVPR}, pp.\ 4401--4410.
+
+\bibitem[Matern et~al.(2019)]{matern2019exploiting}
+Matern, F., Riess, C., \& Stamminger, M. (2019).
+\newblock Exploiting visual artifacts to expose deepfakes and face
+  manipulations.
+\newblock \textit{IEEE WACV Workshops}, pp.\ 83--92.
+\newblock DOI: 10.1109/WACVW.2019.00020
+
+\bibitem[Shannon(1948)]{shannon1948}
+Shannon, C.~E. (1948).
+\newblock A mathematical theory of communication.
+\newblock \textit{Bell System Technical Journal}, 27(3), 379--423.
+
+\bibitem[Tolosana et~al.(2022)]{tolosana2022survey}
+Tolosana, R., Vera-Rodriguez, R., Fierrez, J., Morales, A., \&
+  Ortega-Garcia, J. (2022).
+\newblock GAN-generated faces detection: A survey and new perspectives.
+\newblock \textit{arXiv preprint arXiv:2202.07145}.
+
+\bibitem[Tunguz(2020)]{tunguz2020}
+Tunguz, B. (2020).
+\newblock 1 Million Fake Faces.
+\newblock Kaggle. \url{https://www.kaggle.com/datasets/tunguz/1-million-fake-faces}
+
+\bibitem[xhlulu(2020)]{xhlulu2020}
+xhlulu (2020).
+\newblock 140k Real and Fake Faces.
+\newblock Kaggle. \url{https://www.kaggle.com/datasets/xhlulu/140k-real-and-fake-faces}
+
+\end{thebibliography}
+
+\end{document}
