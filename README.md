@@ -1,16 +1,22 @@
 # SCOTT — Structural and Coherent Order in Topological Transforms
-
 An open-source Python framework for measuring geometric and topological order in 2D images.
 
 ## About
-
 SCOTT provides image analysis metrics that measure structural properties of 2D images — symmetry, topological complexity, edge structure, and multi-scale organisation. The framework is domain-agnostic: it operates on any greyscale image.
 
-This repository contains the core metric and filter implementations, measurement data, and reproduction scripts for:
+## Papers
 
+**Paper 1** (root directory)
 > Cundill, S. (2026). *Bilateral Symmetry as a Filter-Robust Discriminator Between Real and GAN-Generated Face Images.* [preprint]
 
-## Repository contents
+**Paper 2** (`paper2/` folder)
+> Cundill, S. (2026). *Spatial Structure Beyond the Power Spectrum: Amplitude-Adjusted Surrogate Testing in Natural and Synthetic Images.* [preprint]
+
+Scripts and data for Paper 2 are in the `paper2/` folder.
+
+---
+
+## Paper 1 — Repository contents
 
 | File | Description |
 |------|-------------|
