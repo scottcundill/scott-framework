@@ -14,6 +14,18 @@ SCOTT provides image analysis metrics that measure structural properties of 2D i
 
 Scripts and data for Paper 2 are in the `paper2/` folder.
 
+## Finding 1: Bokeh Topological Discrimination
+
+SCOTT detects the central obstruction of a mirror lens as a persistent homology signature in 2D photographs, with no knowledge of optics. Prediction locked before data collection, confirmed on two independent runs, brightness confound tested and defeated.
+
+Technical note and AI disclosure: https://doi.org/10.5281/zenodo.20564619
+
+Data and reports: [finding1_bokeh/](finding1_bokeh/)
+
+## AI Disclosure
+
+A full account of how AI was used across this project is available in [AI_DISCLOSURE.md](AI_DISCLOSURE.md) and as a PDF on Zenodo alongside the technical note.
+
 ---
 
 ## Paper 1 — Repository contents
