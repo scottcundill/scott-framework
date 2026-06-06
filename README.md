@@ -1,30 +1,31 @@
 # SCOTT — Structural and Coherent Order in Topological Transforms
+
 An open-source Python framework for measuring geometric and topological order in 2D images.
 
 ## About
+
 SCOTT provides image analysis metrics that measure structural properties of 2D images — symmetry, topological complexity, edge structure, and multi-scale organisation. The framework is domain-agnostic: it operates on any greyscale image.
 
-## Papers
+## Publications
 
-**Paper 1** (root directory)
-> Cundill, S. (2026). *Bilateral Symmetry as a Filter-Robust Discriminator Between Real and GAN-Generated Face Images.* [preprint]
+**Paper 1 — Bilateral Symmetry**
+> Cundill, S. (2026). *Bilateral Symmetry as a Filter-Robust Discriminator Between Real and GAN-Generated Face Images.* Zenodo. https://doi.org/10.5281/zenodo.20567680
 
-**Paper 2** (`paper2/` folder)
-> Cundill, S. (2026). *Spatial Structure Beyond the Power Spectrum: Amplitude-Adjusted Surrogate Testing in Natural and Synthetic Images.* [preprint]
+**Paper 2 — Spatial Structure Beyond the Power Spectrum**
+> Cundill, S. (2026). *Spatial Structure Beyond the Power Spectrum: Amplitude-Adjusted Surrogate Testing in Natural and Synthetic Images.* Zenodo. https://doi.org/10.5281/zenodo.20567808
 
-Scripts and data for Paper 2 are in the `paper2/` folder.
+**Technical Note — Bokeh Topological Discrimination**
+> Cundill, S. (2026). *Mirror Lens Central Obstruction Detected as Persistent Homology Signature in 2D Photographs.* Technical Note. Zenodo. https://doi.org/10.5281/zenodo.20564619
 
 ## Finding 1: Bokeh Topological Discrimination
 
 SCOTT detects the central obstruction of a mirror lens as a persistent homology signature in 2D photographs, with no knowledge of optics. Prediction locked before data collection, confirmed on two independent runs, brightness confound tested and defeated.
 
-Technical note and AI disclosure: https://doi.org/10.5281/zenodo.20564619
-
 Data and reports: [finding1_bokeh/](finding1_bokeh/)
 
 ## AI Disclosure
 
-A full account of how AI was used across this project is available in [AI_DISCLOSURE.md](AI_DISCLOSURE.md) and as a PDF on Zenodo alongside the technical note.
+A full account of how AI was used across this project is available in [AI_DISCLOSURE.md](AI_DISCLOSURE.md) and as a PDF on Zenodo alongside each publication.
 
 ---
 
@@ -44,6 +45,10 @@ A full account of how AI was used across this project is available in [AI_DISCLO
 | `paper1.tex` | LaTeX source for the paper |
 | `requirements.txt` | Python dependencies |
 
+## Paper 2 — Repository contents
+
+Scripts and data for Paper 2 are in the `paper2/` folder.
+
 ## Quick start
 
 ```bash
@@ -55,7 +60,7 @@ cd scott-framework
 pip install -r requirements.txt
 pip install pandas scipy matplotlib
 
-# Reproduce all paper results (tables printed to console, figures saved as PNG)
+# Reproduce all Paper 1 results (tables printed to console, figures saved as PNG)
 python paper1_reproduce_results.py
 ```
 
@@ -103,10 +108,33 @@ Running a metric across all three filters provides three partially independent t
 
 ## Citation
 
-```
-Cundill, S. (2026). Bilateral Symmetry as a Filter-Robust Discriminator
-Between Real and GAN-Generated Face Images.
-[citation to update on publication]
+```bibtex
+@misc{cundill2026bilateral,
+  author = {Cundill, Scott},
+  title = {Bilateral Symmetry as a Filter-Robust Discriminator Between Real and GAN-Generated Face Images},
+  year = {2026},
+  publisher = {Zenodo},
+  doi = {10.5281/zenodo.20567680},
+  url = {https://doi.org/10.5281/zenodo.20567680}
+}
+
+@misc{cundill2026spatial,
+  author = {Cundill, Scott},
+  title = {Spatial Structure Beyond the Power Spectrum: Amplitude-Adjusted Surrogate Testing in Natural and Synthetic Images},
+  year = {2026},
+  publisher = {Zenodo},
+  doi = {10.5281/zenodo.20567808},
+  url = {https://doi.org/10.5281/zenodo.20567808}
+}
+
+@misc{cundill2026bokeh,
+  author = {Cundill, Scott},
+  title = {Mirror Lens Central Obstruction Detected as Persistent Homology Signature in 2D Photographs},
+  year = {2026},
+  publisher = {Zenodo},
+  doi = {10.5281/zenodo.20564619},
+  url = {https://doi.org/10.5281/zenodo.20564619}
+}
 ```
 
 ## License
