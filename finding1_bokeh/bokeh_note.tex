@@ -1,0 +1,229 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{authblk}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+\title{Mirror Lens Central Obstruction Detected as Persistent Homology Signature in 2D Photographs}
+
+\author{Scott Cundill}
+\affil{Independent Researcher, Okinawa, Japan\\
+\texttt{scott.cam@gmail.com}}
+
+\date{Technical Note, June 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\small DOI: \url{https://doi.org/10.5281/zenodo.20564619}
+\end{center}
+
+\begin{abstract}
+A mirror lens (catadioptric) has a physical hole in its optical path, a central obstruction that projects out-of-focus highlights as donut-shaped rings rather than solid circles. We asked whether SCOTT (Structural and Coherent Order in Topological Transforms), a multi-metric image analysis instrument spanning fractal, geometric, and topological measures, could detect this three-dimensional optical feature from a flat two-dimensional photograph, with no knowledge of optics or lens type. The prediction was locked before any image was sourced: donut bokeh should produce higher Betti-1 counts and higher H1 persistence entropy in the edge point cloud, because the physical hole creates genuine topological loops that solid bokeh does not. A pilot run ($n=5$ per category, three categories) confirmed the predicted metric ordering. A replication on independently sourced specimens ($n=15$ solid, $n=20$ donut) confirmed both primary metrics with large effects: H1 persistence entropy at Cohen's $d=1.47$, 95\% CI $[0.72, 2.22]$, $p<0.001$, and Betti-1 at $d=1.09$, 95\% CI $[0.37, 1.81]$, $p=0.002$. A systematic brightness difference between categories ($d=0.82$) was identified and tested directly via subsample matching, where both primary metrics survived and strengthened: H1 persistence entropy rose to $d=2.09$, 95\% CI $[1.18, 3.00]$, and Betti-1 to $d=1.19$, 95\% CI $[0.40, 1.98]$. The instrument reads the topological shadow of a three-dimensional physical feature from two-dimensional image data.
+\end{abstract}
+
+\section{Introduction}
+
+Most of what distinguishes one photograph from another lives in the Fourier phase rather than the amplitude spectrum \cite{oppenheim1981}. Two images can share an identical power spectrum and look nothing alike. SCOTT (Structural and Coherent Order in Topological Transforms) was built to measure this phase-dependent spatial structure across image domains, using fractal, geometric, and topological metrics computed on greyscale images normalised to $512 \times 512$ pixels. The instrument and its validation framework are described in two companion papers \cite{cundill2026a, cundill2026b}. SCOTT has been applied to human faces, coral reef tissue, quasicrystalline materials, and AI-generated images, with no domain-specific tuning between applications.
+
+The topological metrics in SCOTT operate on edge-extracted point clouds. Each image is downsampled to a $64 \times 64$ pixel grid and Canny edge detection is applied with fixed thresholds of 50 and 150. The coordinates of the resulting edge pixels form a two-dimensional point cloud. When the edge map produces more than 600 points, the set is reduced to exactly 600 by selecting every $n$th point along the coordinate list, preserving the spatial distribution of the edges while keeping computation tractable. Ripser \cite{tralie2018} computes the Vietoris--Rips persistence diagrams of this cloud through homological dimension one. H1 features correspond to closed loops traced by nearby edge points. Features with lifetimes below 5\% of the maximum finite death value are filtered as topological noise. Three scalar metrics are derived from the surviving features: Betti-1, the count of persistent loops; H1 persistence entropy, a measure of how evenly the loop structure is distributed across the diagram; and H1 total persistence, the aggregate lifetime of all loops. The construction means these metrics respond to closed-contour geometry in the edge map, not to enclosed regions in the raw intensity field.
+
+This note reports a probe designed to test whether SCOTT can detect a known three-dimensional physical feature from its two-dimensional projection. A mirror lens has a secondary mirror sitting in the centre of its optical path, physically blocking the central portion of the light cone. Out-of-focus highlights through such a lens appear as donut-shaped rings, bright circles with dark centres. A fast prime lens has no obstruction, and its out-of-focus highlights are solid filled circles. The two lens types produce topologically distinct bokeh: a disc, which is simply connected with no hole, versus a ring, which is a loop with one hole. The question is whether SCOTT detects this difference from the image alone, told nothing about the lens.
+
+\section{Prediction}
+
+The following prediction was written and locked before any image was sourced. It was not modified after sourcing or after either analysis run.
+
+\textbf{Primary prediction:} Category C (donut bokeh from mirror lenses) produces higher Betti-1 and higher H1 persistence entropy than Category A (solid bokeh from fast prime lenses). The physical hole in the mirror lens creates genuine topological loops in the edge point cloud that solid bokeh does not produce.
+
+\textbf{Secondary prediction:} Category C shows lower or more negative Euler characteristic mean, consistent with the topological penalty imposed by holes in the intensity landscape.
+
+\textbf{Non-separation prediction:} Bilateral symmetry should not separate the categories. Both lens types produce roughly circular bokeh highlights, and bilateral symmetry responds to compositional regularity, not to the presence or absence of a central hole. If bilateral symmetry separates the categories, that is a confound to investigate, not a topological finding.
+
+\textbf{Success criteria:} Strong confirmation requires C separating from A on Betti-1 and/or H1 persistence entropy with a large effect ($|d| > 0.8$). Weak confirmation is directional only. Failure is no C $>$ A direction on the primary metrics.
+
+\section{Method}
+
+\subsection{Categories}
+
+Two categories were tested in the primary replication:
+
+\textbf{Category A, solid optical bokeh.} Fast prime lenses and compact cameras producing solid filled circular highlights with no internal structure. Fifteen specimens, sourced manually from Flickr, each checked by eye before download.
+
+\textbf{Category C, mirror lens donut bokeh.} Catadioptric lenses producing hollow ring-shaped highlights with visible dark centres caused by the secondary mirror obstruction. Twenty specimens, sourced from Flickr. Provenance includes confirmed mirror lenses (TTArtisan 250mm f/5.6 Reflex, Reflex 300mm f/6.3 MF) named in filenames.
+
+A pilot run also included Category B, computational bokeh from phone portrait mode ($n=5$), which was dropped from the replication. Computational bokeh detection is a solved problem using depth estimation, segmentation artefacts, and boundary sharpness analysis. The probe's purpose was to test whether SCOTT reads three-dimensional optical topology, not software-generated blur.
+
+\subsection{Image preparation}
+
+Raw images were cropped to regions containing dense, clean bokeh highlights using GPT-4o Vision as a crop-selection tool. Two separate scripts were used, one per category, each with a prompt tuned to the target bokeh type. Category A required a minimum of six solid bokeh balls with confidence above 0.7. Category C required a minimum of three donut rings with confidence above 0.6, reflecting the larger, sparser features typical of mirror lens bokeh. Minimum crop size was 400 pixels, target 600 pixels. Camera names were extracted from Flickr filenames and logged to provenance CSVs.
+
+SCOTT normalises all images to $512 \times 512$ pixels before computing any metrics, so variation in crop size does not affect the analysis. All metrics were computed using the same engine version and parameters that produced the two companion papers, with no modifications to the instrument.
+
+\subsection{Statistical procedure}
+
+Group means were compared using Welch's two-sample $t$-test with unequal variances assumed. Effect size is reported as Cohen's $d$, pooled standard deviation, with positive $d$ indicating C $>$ A throughout. Ninety-five percent confidence intervals for Cohen's $d$ were computed using the large-sample approximation:
+\[
+\text{SE}(d) = \sqrt{\frac{1}{n_1} + \frac{1}{n_2} + \frac{d^2}{2(n_1 + n_2)}}
+\]
+and are reported alongside each primary effect. The analysis is exploratory across multiple metrics, and $p$-values are reported as descriptive screens, not confirmatory tests.
+
+\section{Results}
+
+\subsection{Pilot ($n=5$ per category, three categories)}
+
+The pilot run included solid optical (A), computational (B), and mirror lens (C) bokeh at $n=5$ each, using the topographic isoline filter. Euler characteristic mean separated all three categories in the predicted direction: A $= +213.3$, B $= -17.0$, C $= -75.3$. Betti-1 confirmed the donut topology independently: C $= 131.8$, B $= 117.4$, A $= 105.2$.
+
+The ordering was consistent with the physical mechanism. Simply connected discs scored positive Euler and low Betti-1. Ring-shaped highlights with genuine holes scored negative Euler and high Betti-1. At $n=5$ these differences are directional only. The pilot confirmed the predicted ordering and motivated the expanded replication.
+
+\subsection{Replication ($n=15$ solid, $n=20$ donut)}
+
+Specimens were sourced independently from the pilot. Category B was dropped. The full SCOTT metric set was computed on every specimen.
+
+\begin{table}[h]
+\centering
+\caption{Primary metrics (predicted C $>$ A).}
+\begin{tabular}{lccccl}
+\toprule
+Metric & Mean A & Mean C & Cohen's $d$ & 95\% CI & $p$ \\
+\midrule
+Betti-1 & 23.2 & 53.3 & $+1.09$ & $[0.37, 1.81]$ & 0.002 \\
+H1 persistence entropy & 2.98 & 4.11 & $+1.47$ & $[0.72, 2.22]$ & 0.0002 \\
+H1 total persistence & 83.1 & 100.1 & $+0.48$ & $[-0.20, 1.16]$ & 0.164 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two of three primary metrics confirmed with large effects and $p < 0.01$. The lower bound of the confidence interval for H1 persistence entropy (0.72) remains in the medium-to-large range even at the conservative end. Total persistence went in the predicted direction but did not reach significance, and its confidence interval crosses zero.
+
+\begin{table}[h]
+\centering
+\caption{Secondary metrics reaching significance.}
+\begin{tabular}{lccl}
+\toprule
+Metric & Cohen's $d$ & $p$ & Direction \\
+\midrule
+Multiscale entropy slope & $-1.01$ & 0.005 & A $>$ C \\
+Junctions & $+0.84$ & 0.016 & C $>$ A \\
+Multifractal width & $+0.79$ & 0.024 & C $>$ A \\
+Euler std & $+0.76$ & 0.027 & C $>$ A \\
+Euler range & $+0.69$ & 0.042 & C $>$ A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The separation appeared across several independent metrics, not only the TDA measures. The multiscale entropy slope reversal (A $>$ C) is consistent with the smoother internal gradient structure of solid bokeh compared to the sharper ring boundaries produced by a central obstruction.
+
+Bilateral symmetry did not significantly separate the categories, consistent with the non-separation prediction. This is discussed further in Section~\ref{sec:discriminant}.
+
+\section{Confound analysis}
+
+\subsection{Brightness and contrast}
+
+A systematic confound check compared mean brightness, contrast (pixel standard deviation), dynamic range, and crop dimensions between categories. Category C specimens were brighter than Category A (mean 88.9 vs 64.4, $d=0.82$, $p=0.015$). Category A showed higher contrast ($d=-0.72$, $p=0.042$). Crop dimensions differed due to three uncropped full-resolution images in Category C, but SCOTT's normalisation to $512 \times 512$ removes crop size as a variable in the analysis.
+
+The brightness difference is a real confound that requires a direct test, not just a mechanistic argument.
+
+\subsection{Brightness-matched subsample}
+
+To test whether brightness could explain the topological separation, specimens were restricted to the overlapping brightness band (approximately 32 to 112 on a 0--255 scale), yielding $n=15$ Category A and $n=14$ Category C.
+
+\begin{table}[h]
+\centering
+\caption{Primary metrics, full dataset vs brightness-matched subset.}
+\begin{tabular}{lcccc}
+\toprule
+Metric & Full $d$ & Matched $d$ & 95\% CI (matched) & Matched $p$ \\
+\midrule
+Betti-1 & $+1.09$ & $+1.19$ & $[0.40, 1.98]$ & 0.006 \\
+H1 persistence entropy & $+1.47$ & $+2.09$ & $[1.18, 3.00]$ & $<0.0001$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Both primary metrics survived brightness matching. Both effects strengthened. H1 persistence entropy increased from $d=1.47$ to $d=2.09$, with the lower bound of the matched confidence interval (1.18) exceeding the large-effect threshold on its own. If brightness were driving the topological separation, removing the brightness outliers should have weakened the effect. The opposite occurred. The specimens removed were adding noise to the topological signal, not driving it.
+
+Of twelve metrics tested, nine survived brightness matching. The two that weakened, Euler mean and bilateral symmetry, are the metrics most plausibly sensitive to luminance. The topological and morphological metrics held or strengthened.
+
+\section{Discussion}
+
+The mechanism is physical and direct. A mirror lens has a hole in it. That hole is a three-dimensional object inside the lens barrel. It projects into two-dimensional photographs as a measurable topological signature, closed loops in the edge point cloud that persist across a range of distance thresholds. A fast prime lens has no hole, and its bokeh does not produce these persistent loops. SCOTT detected this difference with a large effect, from the image alone, with no information about the lens or the optical system that produced it.
+
+The prediction was locked before any image was sourced, specifying both the metrics expected to separate and the metrics expected not to. Two of three primary predictions confirmed with large effects. The result replicated from a five-specimen pilot to a thirty-five specimen expanded run on independently sourced images, and survived a direct brightness confound test in which the primary effects strengthened.
+
+\subsection{Caveats}
+
+The categories were sourced from Flickr by different photographers using different cameras in different conditions. The samples are small, and the confidence intervals around the effect sizes are correspondingly wide, though even the lower bounds remain meaningful. The cropping step used GPT-4o Vision, which could in principle introduce systematic differences between categories, though the crop parameters were set deliberately to accommodate the different feature densities of the two bokeh types.
+
+Some Category C images contained foreground subjects that the crop worked around. Some Category A images came from compact cameras rather than fast primes. The categories are not perfectly clean.
+
+The brightness confound was tested and defeated by direction, both primary metrics strengthening after matching, rather than by achieving a perfect brightness balance in the matched subset. A controlled experiment photographing the same scene through a mirror lens and a fast prime at matched aperture would eliminate all confounds simultaneously. That remains a natural next step, and would constitute stronger evidence than the observational comparison reported here.
+
+\subsection{Discriminant validity and the non-separation prediction}
+\label{sec:discriminant}
+
+The non-separation prediction for bilateral symmetry is as informative as the positive results. If SCOTT were simply finding differences everywhere, bilateral symmetry would separate the categories alongside the topological metrics. It did not. Both lens types produce roughly circular highlights, and bilateral symmetry responds to that circularity, not to the presence or absence of an internal hole. The metric correctly ignored a property the two categories share and responded only through the metrics that track the property they do not share, the loop topology of the edge structure.
+
+This pattern, specific metrics separating on predicted properties while others remain flat, is evidence that the instrument measures distinct geometric features rather than a single global image quality. The same discriminant behaviour appeared in the companion IAAFT surrogate study \cite{cundill2026b}, where bilateral symmetry showed near-zero separation rates across all image categories under amplitude-adjusted surrogates, confirming it as a frequency-domain property rather than a spatial-phase one.
+
+\subsection{Cross-domain consistency}
+
+The same instrument, using the same metrics and the same parameters, has now been applied to portrait photographs, AI-generated faces \cite{cundill2026a}, coral reef tissue, quasicrystalline materials at atomic resolution \cite{cundill2026b}, and photographic bokeh. The H1 persistence metrics respond to closed-contour edge geometry in each case, whether those contours trace eyes in a face, polyp boundaries in coral, or donut holes in a mirror lens. The consistency of metric behaviour across unrelated physical domains, using the same engine with no domain-specific tuning, speaks to the generality of the topological approach rather than to any single application.
+
+\section{AI use disclosure}
+
+AI language models were used throughout this work. GPT-4o Vision (OpenAI) was used as the crop-selection tool for both categories, identifying dense regions of bokeh highlights and returning crop coordinates. Claude (Anthropic) was used for code development, statistical analysis, manuscript drafting, and structuring the confound analysis. The experimental design, the prediction, the specimen selection, the visual verification of every image, and the interpretation of all results are the author's. AI was the implementation partner, not the investigator.
+
+The author is not a mathematician or scientist by training, but has thirty years of experience building and managing software systems. Working closely with AI tools is a routine part of that process. The author's role in this work was to direct the investigation, make the judgment calls, and take responsibility for the claims.
+
+A full account of AI contributions across the SCOTT (Structural and Coherent Order in Topological Transforms) Scanner is available as a supplemental document in the project repository (\texttt{AI\_DISCLOSURE.md}) at the URL below.
+
+\section{Data and code availability}
+
+The SCOTT (Structural and Coherent Order in Topological Transforms) Scanner source code, measurement data, and reproduction scripts are available at:
+
+\url{https://github.com/scottcundill/scott-framework}
+
+\noindent Bokeh specimen images, provenance logs, results CSVs, and confound analysis reports are archived in the repository under \texttt{finding1\_bokeh/}. Raw images were sourced from Flickr under various licences and are documented in the provenance logs.
+
+\section*{How to cite this work}
+
+\noindent Cundill, S. (2026). Mirror Lens Central Obstruction Detected as Persistent Homology Signature in 2D Photographs. Technical Note. Zenodo. \url{https://doi.org/10.5281/zenodo.20564619}
+
+\begin{thebibliography}{9}
+
+\bibitem{cundill2026a}
+Cundill, S. (2026).
+Bilateral symmetry as a filter-robust discriminator between real and GAN-generated face images.
+Zenodo. \url{https://doi.org/10.5281/zenodo.20567680}
+
+\bibitem{cundill2026b}
+Cundill, S. (2026).
+Spatial structure beyond the power spectrum: amplitude-adjusted surrogate testing in natural and synthetic images.
+Zenodo. \url{https://doi.org/10.5281/zenodo.20567808}
+
+\bibitem{oppenheim1981}
+Oppenheim, A.V. and Lim, J.S. (1981).
+The importance of phase in signals.
+\textit{Proceedings of the IEEE}, 69(5), 529--541.
+
+\bibitem{tralie2018}
+Tralie, C., Saul, N. and Bar-On, R. (2018).
+Ripser.py: A lean persistent homology library for Python.
+\textit{Journal of Open Source Software}, 3(29), 925.
+
+\end{thebibliography}
+
+\end{document}
