@@ -1,0 +1,115 @@
+======================================================================
+BOKEH CONFOUND CHECK
+Category A (solid bokeh) vs Category C (donut bokeh)
+n_A = 15,  n_C = 20
+======================================================================
+
+1. MEAN BRIGHTNESS (grayscale, 0-255)
+   If categories differ systematically in brightness,
+   topological metrics might respond to that, not topology.
+
+  Mean brightness:
+    Category A:  mean=64.40,  SD=19.71,  range=[35.7, 108.2]
+    Category C:  mean=88.85,  SD=35.64,  range=[18.2, 158.8]
+    Difference:  +24.45
+    Welch t=-2.586,  p=0.0147,  Cohen's d=+0.817
+    Interpretation: large effect, POTENTIAL CONFOUND
+
+2. CONTRAST (std of pixel values)
+   Systematic contrast differences could drive metric separation.
+
+  Contrast (std):
+    Category A:  mean=61.99,  SD=12.79,  range=[40.2, 85.3]
+    Category C:  mean=52.33,  SD=14.01,  range=[24.0, 72.8]
+    Difference:  -9.66
+    Welch t=2.123,  p=0.0417,  Cohen's d=-0.715
+    Interpretation: medium effect
+
+3. DYNAMIC RANGE (max - min pixel value)
+
+  Dynamic range:
+    Category A:  mean=239.53,  SD=17.85,  range=[198.0, 255.0]
+    Category C:  mean=224.95,  SD=36.16,  range=[150.0, 255.0]
+    Difference:  -14.58
+    Welch t=1.567,  p=0.1279,  Cohen's d=-0.489
+    Interpretation: small effect
+
+4. CROP SIZE BIAS CHECK
+   If GPT-4o systematically crops one category tighter,
+   that could introduce a scale-dependent confound.
+
+  Total pixels (h*w):
+    Category A:  mean=504773.20,  SD=220845.14,  range=[261000.0, 884736.0]
+    Category C:  mean=1009147.40,  SD=845855.05,  range=[298116.0, 3145728.0]
+    Difference:  +504374.20
+    Welch t=-2.553,  p=0.0180,  Cohen's d=+0.767
+    Interpretation: medium effect
+
+  Width (px):
+    Category A:  mean=744.20,  SD=224.23,  range=[500.0, 1152.0]
+    Category C:  mean=1136.65,  SD=437.10,  range=[546.0, 2048.0]
+    Difference:  +392.45
+    Welch t=-3.455,  p=0.0017,  Cohen's d=+1.083
+    Interpretation: large effect, POTENTIAL CONFOUND
+
+  Height (px):
+    Category A:  mean=657.00,  SD=101.16,  range=[435.0, 768.0]
+    Category C:  mean=791.45,  SD=289.53,  range=[450.0, 1536.0]
+    Difference:  +134.45
+    Welch t=-1.926,  p=0.0657,  Cohen's d=+0.586
+    Interpretation: medium effect
+
+======================================================================
+PER-IMAGE DATA
+======================================================================
+
+Category A (solid bokeh):
+  Name                             Bright   Contrast      W      H
+  A_001_cropped.jpg                 55.87      52.91    600    600
+  A_002_cropped.jpg                 61.86      71.98    683    683
+  A_003_cropped.jpg                 60.93      52.91    500    683
+  A_004_cropped.jpg                 57.84      62.28    683    683
+  A_005_cropped.jpg                 92.59      73.93    600    600
+  A_006_cropped.jpg                 35.67      40.25    600    600
+  A_007_cropped.jpg                108.18      73.52    768    768
+  A_008_cropped.jpg                 83.99      61.77   1024    768
+  A_009_cropped.jpg                 61.08      85.35    582    600
+  A_010_cropped.jpg                 42.96      59.86   1024    768
+  A_011_cropped.jpg                 39.78      40.51    600    435
+  A_012_cropped.jpg                 71.43      63.25   1147    768
+  A_013_cropped.jpg                 73.30      76.64    600    583
+  A_014_cropped.jpg                 68.83      58.72    600    548
+  A_015_cropped.jpg                 51.74      55.90   1152    768
+
+Category C (donut bokeh):
+  Name                             Bright   Contrast      W      H
+  C_001_cropped.jpg                122.87      53.38   1024    683
+  C_002_cropped.jpg                 62.30      66.48   1024    683
+  C_003_cropped.jpg                108.51      24.01    900    600
+  C_004_cropped.jpg                 95.22      36.43   1264    768
+  C_005_cropped.jpg                158.78      58.46    978    768
+  C_007_cropped.jpg                 78.38      65.04   1024    681
+  C_008_cropped.jpg                 28.50      37.36   1147    768
+  C_009_cropped.jpg                136.82      42.90    757    757
+  C_011_cropped.jpg                 97.16      44.86    895    768
+  C_012_cropped.jpg                 83.38      50.80   1045    450
+  C_013_cropped.jpg                 65.49      47.33   1024    768
+  C_014_cropped.jpg                 98.88      46.17    735    630
+  C_015_cropped.jpg                 96.88      62.45   1152    768
+  C_016_cropped.jpg                 67.66      70.06   1024    576
+  C_017_cropped.jpg                148.46      63.36   1365    768
+  C_018_cropped.jpg                 75.81      61.07    546    546
+  C_019_cropped.jpg                 61.99      68.59    685    575
+  Fujifilm X-T4.jpg                 95.57      72.83   2048   1365
+  Nikon D40X.jpg                    18.19      30.48   2048   1371
+  Panasonic DMC-GX8.jpg             76.24      44.47   2048   1536
+
+======================================================================
+SUMMARY VERDICT
+======================================================================
+WARNING: at least one confound measure shows a large
+effect (d >= 0.8). Investigate before citing the result.
+
+  brightness: |d| = 0.817
+  contrast: |d| = 0.715
+  crop_size: |d| = 0.767

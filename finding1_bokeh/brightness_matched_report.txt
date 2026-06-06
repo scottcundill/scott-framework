@@ -1,0 +1,90 @@
+======================================================================
+BRIGHTNESS-MATCHED SUBSAMPLE TEST
+Bokeh Finding 1: Confound Defeat
+======================================================================
+
+RATIONALE: The full dataset shows a brightness confound
+(d=0.82, Category C brighter). This test restricts to
+specimens in the overlapping brightness band and re-runs
+all key metric comparisons.
+
+Brightness overlap band: [32.0, 111.8]
+Full dataset:    n_A=15,  n_C=20
+Matched subset:  n_A=15,  n_C=14
+
+Brightness check on matched subset:
+  A mean=64.4,  C mean=83.1
+  d=+1.049,  p=0.0084
+  -> brightness still differs, interpret with caution
+
+----------------------------------------------------------------------
+MATCHED SPECIMENS
+----------------------------------------------------------------------
+  Category A (15):
+    A_001_cropped.jpg               brightness=55.9
+    A_002_cropped.jpg               brightness=61.9
+    A_003_cropped.jpg               brightness=60.9
+    A_004_cropped.jpg               brightness=57.8
+    A_005_cropped.jpg               brightness=92.6
+    A_006_cropped.jpg               brightness=35.7
+    A_007_cropped.jpg               brightness=108.2
+    A_008_cropped.jpg               brightness=84.0
+    A_009_cropped.jpg               brightness=61.1
+    A_010_cropped.jpg               brightness=43.0
+    A_011_cropped.jpg               brightness=39.8
+    A_012_cropped.jpg               brightness=71.4
+    A_013_cropped.jpg               brightness=73.3
+    A_014_cropped.jpg               brightness=68.8
+    A_015_cropped.jpg               brightness=51.7
+  Category C (14):
+    C_002_cropped.jpg               brightness=62.3
+    C_003_cropped.jpg               brightness=108.5
+    C_004_cropped.jpg               brightness=95.2
+    C_007_cropped.jpg               brightness=78.4
+    C_011_cropped.jpg               brightness=97.2
+    C_012_cropped.jpg               brightness=83.4
+    C_013_cropped.jpg               brightness=65.5
+    C_014_cropped.jpg               brightness=98.9
+    C_015_cropped.jpg               brightness=96.9
+    C_016_cropped.jpg               brightness=67.7
+    C_018_cropped.jpg               brightness=75.8
+    C_019_cropped.jpg               brightness=62.0
+    Fujifilm X-T4.jpg               brightness=95.6
+    Panasonic DMC-GX8.jpg           brightness=76.2
+
+======================================================================
+METRIC COMPARISONS: FULL vs BRIGHTNESS-MATCHED
+======================================================================
+
+If the topological metrics still separate on the matched
+subset, brightness does not explain the result.
+
+  Metric                            Full d   Match d     Match p     Verdict
+  --------------------------------------------------------------------
+  betti_1                            +1.04     +1.19     0.0058**       HOLDS
+  persistence_entropy_h1             +1.48     +2.09     0.0000***       HOLDS
+  total_persistence_h1               +0.46     +0.60     0.1178ns       minor
+  euler_mean                         -0.58     -0.46     0.2411ns    weakened
+  euler_std                          +0.71     +0.83     0.0478*       HOLDS
+  euler_range                        +0.65     +0.76     0.0622ns       HOLDS
+  junctions                          +0.79     +0.88     0.0347*       HOLDS
+  multifractal_width                 +0.77     +0.92     0.0230*       HOLDS
+  multiscale_entropy_slope           -0.99     -0.92     0.0222*       HOLDS
+  f_dim                              +0.23     +0.23     0.5497ns       minor
+  lacunarity_mean                    +0.39     +0.48     0.2354ns       minor
+  bilateral_symmetry                 +0.61     +0.48     0.2100ns    weakened
+
+======================================================================
+VERDICT
+======================================================================
+
+9 of 12 tested metrics survived brightness matching.
+
+If the primary topological metrics (betti_1,
+persistence_entropy_h1) show HOLDS or weakened,
+the brightness confound does not explain the result.
+Report both full and matched results in the note.
+
+NOTE: SCOTT normalises all images to 512x512 before
+computing metrics. Crop size differences in the raw
+files do not affect the analysis.
