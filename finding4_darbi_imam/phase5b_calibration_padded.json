@@ -1,0 +1,70 @@
+{
+  "experiment": "Phase 5b calibration, angle-preserving pad-to-square pipeline",
+  "date": "2026-06-08T08:00:14",
+  "fix": "pad to square (median fill) before normalize_image, so the resize is isotropic and inter-centroid angles are preserved. normalize_image itself unchanged (shared across project).",
+  "pipeline": "BGR2GRAY -> pad_to_square(median) -> normalize_image(512) -> phase5b.analyze_tiling",
+  "locked_acceptance": "positive S10>=1.5 AND E>0; each periodic negative motifs>=100 AND E<=0",
+  "results": [
+    {
+      "tile_motif_count": 671,
+      "tile_10fold": 2.1618,
+      "tile_5fold": 2.1404,
+      "tile_4fold": 1.0164,
+      "tile_6fold": 0.079,
+      "tile_forbidden_excess": 1.1454,
+      "tile_spacing_px": 73.1,
+      "phase5b_status": "ok",
+      "name": "penrose",
+      "role": "positive (quasicrystal)"
+    },
+    {
+      "tile_motif_count": 400,
+      "tile_10fold": 0.95,
+      "tile_5fold": 0.95,
+      "tile_4fold": 8.78,
+      "tile_6fold": 2.255,
+      "tile_forbidden_excess": -7.83,
+      "tile_spacing_px": 73.1,
+      "phase5b_status": "ok",
+      "name": "periodic_square",
+      "role": "negative (periodic, 4-fold)"
+    },
+    {
+      "tile_motif_count": 263,
+      "tile_10fold": 1.2084,
+      "tile_5fold": 1.2084,
+      "tile_4fold": 4.9772,
+      "tile_6fold": 4.2167,
+      "tile_forbidden_excess": -3.7688,
+      "tile_spacing_px": 73.1,
+      "phase5b_status": "ok",
+      "name": "periodic_hex",
+      "role": "negative (periodic, 6-fold)"
+    },
+    {
+      "tile_motif_count": 0,
+      "tile_10fold": 0.0,
+      "tile_5fold": 0.0,
+      "tile_4fold": 0.0,
+      "tile_6fold": 0.0,
+      "tile_forbidden_excess": 0.0,
+      "tile_spacing_px": 73.1,
+      "phase5b_status": "extraction_failed (found 0 motifs, need >= 15)",
+      "name": "white_noise",
+      "role": "null"
+    },
+    {
+      "tile_motif_count": 406,
+      "tile_10fold": 1.6867,
+      "tile_5fold": 1.7015,
+      "tile_4fold": 0.367,
+      "tile_6fold": 0.1232,
+      "tile_forbidden_excess": 1.3345,
+      "tile_spacing_px": 17.0,
+      "phase5b_status": "ok",
+      "name": "darbi_reconstruction",
+      "role": "instrument check"
+    }
+  ],
+  "all_controls_valid": true
+}
